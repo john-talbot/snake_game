@@ -5,6 +5,7 @@ const INITIAL_LENGTH = 3;
 
 export class Snake {
 	#body: Point[];
+	#prevBody: Point[];
 	#direction: Point;
 
 	constructor() {
@@ -13,10 +14,15 @@ export class Snake {
 			x: 10 - i,
 			y: 10,
 		}));
+		this.#prevBody = this.#body.map((p) => ({ ...p }));
 	}
 
 	get body(): readonly Point[] {
 		return this.#body;
+	}
+
+	get prevBody(): readonly Point[] {
+		return this.#prevBody;
 	}
 
 	get direction(): Point {
@@ -29,6 +35,7 @@ export class Snake {
 
 	/** Advance the snake one step. Always removes the tail — call grow() afterward if food was eaten. */
 	move(): void {
+		this.#prevBody = this.#body.map((p) => ({ ...p }));
 		const { x, y } = this.#body[0];
 		this.#body.unshift({ x: x + this.#direction.x, y: y + this.#direction.y });
 		this.#body.pop();

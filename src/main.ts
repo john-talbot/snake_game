@@ -31,13 +31,23 @@ let pendingDirection: Point | null = null;
 let score = 0;
 let paused = false;
 
-function scheduleTick(): void {
-	setTimeout(tick, TICK_INTERVAL_MS);
+// --- render loop state ---
+let lastTimestamp = 0;
+let accumulator = 0;
+let rafId = 0;
+
+function startLoop(): void {
+	lastTimestamp = performance.now();
+	accumulator = 0;
+	rafId = requestAnimationFrame(gameLoop);
 }
 
-function tick(): void {
-	if (paused) return;
+function stopLoop(): void {
+	cancelAnimationFrame(rafId);
+}
 
+/** Pure game logic — no rendering, no scheduling. Returns true if the tick caused a game over. */
+function gameTick(): boolean {
 	if (pendingDirection) {
 		snake.setDirection(pendingDirection);
 		pendingDirection = null;
@@ -54,31 +64,55 @@ function tick(): void {
 		scoreEl.textContent = `Score: ${score}`;
 	}
 
-	render(ctx, snake, food);
+	return snake.checkCollision();
+}
 
-	if (snake.checkCollision()) {
-		gameOverEl.style.display = "flex";
-		return;
+function gameLoop(timestamp: number): void {
+	// Cap dt at 200 ms to prevent a "spiral of death" if the tab was hidden for a while.
+	const dt = Math.min(timestamp - lastTimestamp, 200);
+	lastTimestamp = timestamp;
+	accumulator += dt;
+
+	let gameOver = false;
+	while (accumulator >= TICK_INTERVAL_MS) {
+		gameOver = gameTick();
+		accumulator -= TICK_INTERVAL_MS;
+		if (gameOver) break;
 	}
 
-	scheduleTick();
+	// alpha: how far between the last tick and the next tick we currently are (0–1).
+	// Passed to the renderer so it can interpolate segment positions.
+	const alpha = gameOver ? 1 : accumulator / TICK_INTERVAL_MS;
+	render(ctx, snake, food, alpha);
+
+	if (gameOver) {
+		gameOverEl.style.display = "flex";
+		return; // don't reschedule — loop stops here
+	}
+
+	rafId = requestAnimationFrame(gameLoop);
 }
 
 function restart(): void {
+	stopLoop();
 	snake = new Snake();
 	food = spawnFood(snake);
 	score = 0;
 	paused = false;
 	scoreEl.textContent = "Score: 0";
 	gameOverEl.style.display = "none";
-	scheduleTick();
+	startLoop();
 }
 
 document.addEventListener("keydown", (event) => {
 	if (event.key === " ") {
 		event.preventDefault();
 		paused = !paused;
-		if (!paused) scheduleTick();
+		if (paused) {
+			stopLoop();
+		} else {
+			startLoop();
+		}
 		return;
 	}
 
@@ -94,4 +128,4 @@ document.addEventListener("keydown", (event) => {
 
 getElement<HTMLButtonElement>("#restart").addEventListener("click", restart);
 
-scheduleTick();
+startLoop();
