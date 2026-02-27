@@ -1,0 +1,86 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background: #0f0f1a;
+	background-image: radial-gradient(ellipse at center, #16213e 0%, #0f0f1a 70%);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	font-family: "Press Start 2P", monospace;
+	color: #eee;
+}
+
+#score {
+	font-size: 1.1rem;
+	margin-bottom: 20px;
+	color: #4ecca3;
+	letter-spacing: 2px;
+	text-shadow: 0 0 12px rgba(78, 204, 163, 0.6);
+}
+
+#game {
+	background: #0f3460;
+	border: 3px solid #4ecca3;
+	display: block;
+	box-shadow:
+		0 0 24px rgba(78, 204, 163, 0.35),
+		0 0 64px rgba(78, 204, 163, 0.12);
+}
+
+#game-over {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 44px;
+	background: rgba(8, 8, 24, 0.93);
+	backdrop-filter: blur(6px);
+	padding: 48px 52px;
+	border: 2px solid #e94560;
+	border-radius: 4px;
+	box-shadow:
+		0 0 32px rgba(233, 69, 96, 0.4),
+		0 0 80px rgba(233, 69, 96, 0.1);
+}
+
+#game-over h1 {
+	font-size: 1.4rem;
+	color: #e94560;
+	letter-spacing: 4px;
+	text-shadow: 0 0 20px rgba(233, 69, 96, 0.8);
+}
+
+#restart {
+	background: transparent;
+	color: #4ecca3;
+	border: 2px solid #4ecca3;
+	padding: 14px 32px;
+	font-size: 0.7rem;
+	font-family: "Press Start 2P", monospace;
+	letter-spacing: 2px;
+	border-radius: 2px;
+	cursor: pointer;
+	transition:
+		background 0.15s,
+		color 0.15s,
+		box-shadow 0.15s,
+		transform 0.1s;
+}
+
+#restart:hover {
+	background: #4ecca3;
+	color: #0f3460;
+	box-shadow: 0 0 20px rgba(78, 204, 163, 0.5);
+}
+
+#restart:active {
+	transform: translateY(0);
+}
